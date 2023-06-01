@@ -1,7 +1,7 @@
 # KEngine
-## Version: 1.0
+## Version: 2.0
 
-Implement version 1.0 of the keyword search engine.
+Implement version 2.0 of the keyword search engine.
 
 TODO: add details
 

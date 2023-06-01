@@ -1,6 +1,8 @@
 # KEngine
+## Version: 1.0
 
-Implement the keyword search engine in the Liskov's text book.
+Implement version 1.0 of the keyword search engine.
 
-Create 4 versions using 4 branches.
+TODO: add details
+
 

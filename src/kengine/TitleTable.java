@@ -1,7 +1,8 @@
 package kengine;
 
-import java.util.Vector;
+import java.util.Hashtable;
 
+import kengine.Doc;
 import utils.DuplicateException;
 import utils.NotPossibleException;
 
@@ -11,22 +12,22 @@ import utils.NotPossibleException;
  * 
  * @see "Program development in Java", pgs 320, 365
  * 
- * @version 1.0 simply store documents in an array (actually we will use <code>Vector</code>
- *              to ease implementation).
+ * @version 2.0 provides a full implementation 
  * 
  * @author dmle
  *
  */
 public class TitleTable {
   
-  private Vector docs;
+  // the rep of this class
+  private Hashtable docs;
   
   /**
    * Constructor method
    * @effects Initialises <code>this</code> to be an empty table.
    */
   public TitleTable() {
-    docs = new Vector();
+    docs = new Hashtable();
   }
   
   /**
@@ -37,10 +38,18 @@ public class TitleTable {
    * @effects   if a document with the same title already in <code>this</code> 
    *            throws <code>DuplicateException</code>, else adds <code>d</code> with 
    *            its title to <code>this</code>.
-   * @version 1.0 ignores the duplicacy check and just adds <code>d</code>           
+   * @version 2.0           
    */
   public void addDoc(Doc d) throws DuplicateException {
-    docs.add(d);
+    String t = d.title();
+    // canonical form
+    t = Helpers.canon(t);
+    
+    if (docs.containsKey(t)) {
+      throw new DuplicateException("TitleTable.addDoc: a document with same title already exists: " + t);
+    }
+    
+    docs.put(t, d);
   }
   
   /**
@@ -50,10 +59,28 @@ public class TitleTable {
    * @effects   if <code>t</code> is <code>null</code> or there is no document with this 
    *            title throws <code>NotPossibleException</code>, else returns the document
    *            with title <code>t</code>.
-   * @version 1.0 simply throws <code>NotPossibleException</code> since we donot yet store document and title 
-   *              in a table
+   * @version 2.0 
    */
   public Doc lookup(String t) throws NotPossibleException {
-    throw new NotPossibleException("TitleTable.lookup: not implemented yet ");
+    Doc d = null;
+    if (t != null) {
+      // canonical form
+      String ct = Helpers.canon(t);
+
+      d = (Doc) docs.get(ct);
+    }
+    
+    if (d == null)
+      throw new NotPossibleException("TitleTable.lookup: could not look up document with title " + t);
+    else 
+      return d;
+  }
+  
+  /**
+   * @effects Reinitialise <code>this</code> to the initial state (e.g. containing
+   *          no documents)
+   */
+  public void reset() {
+    docs.clear();
   }
 }

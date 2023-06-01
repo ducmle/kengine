@@ -6,9 +6,9 @@ import utils.NotPossibleException;
  * @overview A general helper class responsible for performing procedures that are 
  *           needed by a number of application classes.
  *           At present only <code>canon</code> is defined.
- * @version 1.0
- *               
- * @see      "Program development in Java", pgs 333,365
+ * @version  2.0
+ *              
+ * @see      "Program development in Java", pgs 332-333,365
  * @author dmle
  *
  */
@@ -20,9 +20,12 @@ public class Helpers {
    * @param s a <code>String</code> from which a canonical form is to be generated
    * @effects If <code>s</code> is <code>null</code> throws <code>NotPossibleException</code>
    *          else returns a canonical form of <code>s</code>.
-   * @version 1.0 returns <code>s</code> itself (does not yet support canonical) 
+   * @version 2.0 uses the lower-case of <code>s</code> as the canonical form of <code>s</code> 
    */
   public static String canon(String s) throws NotPossibleException {
-    return s;
+    if (s == null)
+      throw new NotPossibleException("Helpers.canon: input string cannot be null");
+    
+    return s.toLowerCase();
   }
 }

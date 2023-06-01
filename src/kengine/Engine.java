@@ -4,6 +4,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Vector;
 
+import kengine.Comm;
+import kengine.Doc;
+import kengine.Query;
+import kengine.WordTable;
 import utils.NotPossibleException;
 
 
@@ -16,7 +20,7 @@ import utils.NotPossibleException;
  * 
  * @see "Program Development in Java", pgs: 313, 316-323, 365
  * 
- * @version 1.0 
+ * @version 2.0 
  * @author dmle
  *
  */
@@ -43,6 +47,70 @@ public class Engine {
   }
 
   /**
+   * A method to create a <code>Query</code> object containing the matching documents 
+   * of a given keyword <code>w</code>
+   * 
+   * @param w   a keyword to search
+   * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
+   *            then throws <code>NotPossibleException</code>, else returns 
+   *            a <code>Query</code> object containing the documents matching the keyword
+   * @version 1.0 returns empty <code>Query</code> object since all words are assumed uninteresting
+   */
+  public Query queryFirst(String w) throws NotPossibleException {
+    // canonical form
+    String cw = Helpers.canon(w);
+    
+    // check w
+    if (wt.lookup(cw) == null) {
+      throw new NotPossibleException("Engine.queryFirst: the specified word is either not found in any documents or uninteresting: " + w);
+    }
+    
+    q = new Query();
+    return q;
+  }
+  
+  /**
+   * A method to query the matching documents of an existing <code>Query</code> object for  
+   * those that contains an additional keyword <code>w</code>
+   * 
+   * @param w   a keyword to search
+   * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
+   *            then throws <code>NotPossibleException</code>, else returns 
+   *            an updated <code>Query</code> object containing the documents matching all keywords
+   * @version 2.0 returns empty <code>Query</code> object since all words are assumed uninteresting
+   */
+  public Query queryMore(String w) throws NotPossibleException {
+    // canonical form
+    String cw = Helpers.canon(w);
+
+    // check w
+    if (wt.lookup(cw) == null) {
+      throw new NotPossibleException("Engine.queryMore: the specified word is either not found in any documents or uninteresting: " + w);
+    }
+
+    q = new Query();
+    return q;
+  }
+  
+  /**
+   * A method to retrieve a <code>Doc</code> given its title.
+   * 
+   * @param t   the title of the document to retrieve
+   * @effects   if <code>t</code> is not in <code>TitleTable</code>  
+   *            then throw <code>NotPossibleException</code>, 
+   *            else return the <code>Doc</code> object with title <code>t</code>
+   */
+  public Doc findDoc(String t) throws NotPossibleException {
+    Doc d = tt.lookup(t);
+    
+    if (d == null) {
+      throw new NotPossibleException("Engine.findDoc: the specified title could not be found: " + t);
+    }
+    
+    return d;
+  }
+  
+  /**
    * A method to retrieve documents from remote web site <code>u</code> and store 
    * them for query processing.
    * 
@@ -68,12 +136,11 @@ public class Engine {
     while (docs.hasNext()) {
       d = (Doc) docs.next();
       tt.addDoc(d);
+      h = wt.addDoc(d);
       
       // debug
       System.out.println("added: " + d.title());
-      
-      h = wt.addDoc(d);
-      
+
       if (q != null) {        
         q.addDoc(d, h);
       }
@@ -87,66 +154,8 @@ public class Engine {
     urls.add(u);
     
     return q;
-  }
+  }  
 
-  /**
-   * A method to create a <code>Query</code> object containing the matching documents 
-   * of a given keyword <code>w</code>
-   * 
-   * @param w   a keyword to search
-   * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
-   *            then throws <code>NotPossibleException</code>, else returns 
-   *            a <code>Query</code> object containing the documents matching the keyword
-   * @version 1.0 returns empty <code>Query</code> object since all words are assumed uninteresting
-   */
-  public Query queryFirst(String w) throws NotPossibleException {
-    // check w
-    if (wt.lookup(w) == null) {
-      throw new NotPossibleException("Engine.queryFirst: the specified word is either not found in any documents or uninteresting: " + w);
-    }
-    
-    q = new Query();
-    return q;
-  }
-  
-  /**
-   * A method to query the matching documents of an existing <code>Query</code> object for  
-   * those that contains an additional keyword <code>w</code>
-   * 
-   * @param w   a keyword to search
-   * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
-   *            then throws <code>NotPossibleException</code>, else returns 
-   *            an updated <code>Query</code> object containing the documents matching all keywords
-   * @version 1.0 returns empty <code>Query</code> object since all words are assumed uninteresting
-   */
-  public Query queryMore(String w) throws NotPossibleException {
-    // check w
-    if (wt.lookup(w) == null) {
-      throw new NotPossibleException("Engine.queryMore: the specified word is either not found in any documents or uninteresting: " + w);
-    }
-
-    q = new Query();
-    return q;
-  }
-  
-  /**
-   * A method to retrieve a <code>Doc</code> given its title.
-   * 
-   * @param t   the title of the document to retrieve
-   * @effects   if <code>t</code> is not in <code>TitleTable</code>  
-   *            then throw <code>NotPossibleException</code>, 
-   *            else return the <code>Doc</code> object with title <code>t</code>
-   */
-  public Doc findDoc(String t) throws NotPossibleException {
-    Doc d = tt.lookup(t);
-    
-     if (d == null) {
-      throw new NotPossibleException("Engine.findDoc: the specified title could not be found: " + t);
-    }
-    
-    return d;
-  }
-  
   /**
    * A method to return all none-keywords in as a string for display.
    * 

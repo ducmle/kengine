@@ -1,18 +1,14 @@
 package kengine;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Vector;
 
 import kengine.Comm;
 import kengine.Doc;
-import kengine.Query;
+import kengine.Helpers;
 import kengine.TitleTable;
 import utils.NotPossibleException;
-
 
 /**
  * @overview An engine has a state as described in the search engine data model. 
@@ -23,7 +19,7 @@ import utils.NotPossibleException;
  * 
  * @see "Program Development in Java", pgs: 313, 316-323, 365
  * 
- * @version 3.0 
+ * @version 4.0 implement the full logic
  * @author dmle
  *
  */
@@ -37,50 +33,16 @@ public class Engine {
   private Vector urls;
 
   /**
+   * Constructor method 
    * 
-   * @effects initialises <code>this</code> using the default 
-   *          <code>kengine.properties</code> file
-   */
-  public Engine() throws NotPossibleException {
-    this("kengine.properties");
-  }
-
-  /**
-   * @requires <code>propFile != null</code>
-   * @effects Initialises <code>this</code> with a custom properties file.
-   *          If uninteresting words cannot be retrieved from the persistent state
+   * @effects if uninteresting words cannot be retrieved from the persistent state
    *          throw <code>NotPossibleException</code> else creates NK and initialises
    *          the application state appropriately
    */
-  public Engine(String propFile) throws NotPossibleException {
+  public Engine() throws NotPossibleException {
     tt = new TitleTable();
     // the exception is thrown by this line
-    // read the path to the nk.file from the configuration file
-    // if it is not there then use the default file
-    Properties props = new Properties();
-    String nkFile = null;
-    try {
-      // if propFile is a single name then treats it relative to the 
-      // Engine class
-      final String sep = System.getProperty("file.separator");
-      
-      if (propFile.indexOf(sep) < 0)
-        props.load(new FileInputStream(new File(
-            Engine.class.getResource(".."
-            + sep + propFile).toURI())));
-      else 
-        props.load(new FileInputStream(new File(propFile)));
-      
-      nkFile = props.getProperty("nk.file");
-    } catch (Exception e) {
-      throw new NotPossibleException("Failed to read test directory from property file: " + e.getMessage());
-    }
-
-    if (nkFile != null)
-      wt = new WordTable(nkFile);
-    else
-      wt = new WordTable();
-    
+    wt = new WordTable();
     urls = new Vector();
   }
 
@@ -92,15 +54,18 @@ public class Engine {
    * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
    *            then throws <code>NotPossibleException</code>, else returns 
    *            a <code>Query</code> object containing the documents matching the keyword
-   * @version 1.0 returns empty <code>Query</code> object since all words are assumed uninteresting
+   * @version 4.0
    */
   public Query queryFirst(String w) throws NotPossibleException {
+    if (w != null)
+      w = Helpers.canon(w);
+    
     // check w
     if (wt.lookup(w) == null) {
       throw new NotPossibleException("Engine.queryFirst: the specified word is either not found in any documents or uninteresting: " + w);
     }
     
-    q = new Query();
+    q = new Query(wt, w);
     return q;
   }
   
@@ -112,15 +77,19 @@ public class Engine {
    * @effects   if <code>w</code> is not a word or <code>w</code> is an uninteresting word 
    *            then throws <code>NotPossibleException</code>, else returns 
    *            an updated <code>Query</code> object containing the documents matching all keywords
-   * @version 1.0 returns empty <code>Query</code> object since all words are assumed uninteresting
+   * @version 4.0
    */
   public Query queryMore(String w) throws NotPossibleException {
+    if (w != null)
+      w = Helpers.canon(w);
+    
     // check w
     if (wt.lookup(w) == null) {
       throw new NotPossibleException("Engine.queryMore: the specified word is either not found in any documents or uninteresting: " + w);
     }
 
-    q = new Query();
+    q.addKey(w);
+    
     return q;
   }
   
@@ -154,7 +123,7 @@ public class Engine {
    *            respective methods. If no query was in progress then return an empty
    *            <code>Query</code> object, else returns an updated object that contains 
    *            any matching new documents.
-   * @version 1.0  returns empty <code>Query</code> object since all keywords are assumed uninteresting
+   * @version 4.0  add each new document to the current query (if one exists)
    */
   public Query addDocs(String u) throws NotPossibleException {
     if (urls.contains(u)) 
@@ -167,6 +136,7 @@ public class Engine {
     Hashtable h;
     while (docs.hasNext()) {
       d = (Doc) docs.next();
+      //addDoc(d);
       tt.addDoc(d);
       h = wt.addDoc(d);
       
@@ -188,22 +158,22 @@ public class Engine {
   /**
    * A method to return all none-keywords in as a string for display.
    * 
-   * @effects returns a <code>String[]</code> array containing all none-keywords
-   *          in <code>this.wt</code>
+   * @effects return a string containing all none-keywords
    * @note this method is not in the original design of this class
    */
   public String[] getNonkeys() {   
     return wt.getNonkeys();
   }
-
+  
   /**
-   * @effects returns a <code>String[]</code> array containing all words in <code>this.wt</code> 
-   *
+   * A method to return the displayable content of the word table as string.
+   *  
+   * @effects return a string containing all the words and their <code>DocCnt</code> objects
    * @note this method is not in the original design of this class
    */
-  public String[] getWords() {
-    return wt.getWords();
-  }  
+  public String getWordTableAsString() {
+    return wt.toString();
+  }
   
   /**
    * @effects Reinitialise <code>this</code> to the initial state (e.g. containing

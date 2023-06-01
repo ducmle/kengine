@@ -1,10 +1,8 @@
 package kengine;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -30,49 +28,33 @@ import utils.NotPossibleException;
  */
 public class WordTable {
   // the rep of this class
-  private Hashtable<String,Object> 
-    table;
+  private Hashtable table;
 
   private static final String NK_FILE = "nk.dat";
 
   /**
-   * @effects initialises this using the default <code>NK_FILE</code>
+   * Constructor method
    * 
-   * @version 3.0 add cannonical form to uninteresting words
-   */
-  public WordTable() throws NotPossibleException {
-    this(NK_FILE);
-  }
-
-  /**
-   * @requires  <code>nkFile != null</code>
-   * @effects If the <code>nkFile</code> cannot be read throws
+   * @effects If the file cannot be read throws
    *          <code>NotPossibleException</code>, else initialises the table to
    *          contain all the words in the file as uninteresting words.
    * @version 3.0 add cannonical form to uninteresting words
-   */  
-  public WordTable(final String nkFile) throws NotPossibleException {
+   */
+  public WordTable() throws NotPossibleException {
     table = new Hashtable();
 
     // read the NK file and store keywords to this table
-    // if the file name is a single name then treats it relative to this 
-    // class
-    final String sep = System.getProperty("file.separator");
-    BufferedReader bf = null;
-    
+    // assumes file is stored in the same directory as this class
+    BufferedReader bf = new BufferedReader(new InputStreamReader(this
+        .getClass().getResourceAsStream(NK_FILE)));
+
     try {
-      if (nkFile.indexOf(sep) < 0)
-        bf = new BufferedReader(new InputStreamReader(this
-            .getClass().getResourceAsStream(nkFile)));
-      else
-        bf = new BufferedReader(new InputStreamReader(new FileInputStream(nkFile)));
-        
       if (!bf.ready())
         throw new NotPossibleException(
-            "WordTable.init(): Failed to read non-key file " + nkFile);
-    } catch (Exception ex) {
+            "WordTable.init(): Failed to read non-key file " + NK_FILE);
+    } catch (IOException ex) {
       throw new NotPossibleException(
-          "WordTable.init(): Failed to read non-key file " + nkFile
+          "WordTable.init(): Failed to read non-key file " + NK_FILE
               + "due to " + ex);
     }
 
@@ -93,9 +75,9 @@ public class WordTable {
       } catch (IOException ex) {
         // failed to read a line, ignore and continue
       }
-    }    
+    }
   }
-  
+
   /**
    * A method to add a document <code>d</code> to <code>this</code>.
    * 
@@ -182,10 +164,8 @@ public class WordTable {
    * @param k
    *          a keyword to look up
    * @requires <code>k</code> is not <code>null</code>
-   * @effects If <code>k</code> is an interesting word, returns a vector of 
-   *          <code>DocCnt</code>s where <code>Doc</code>
-   *          contains <code>k</code> <code>cnt</code> times, else 
-   *          returns <code>null</code>
+   * @effects Returns a vector of <code>DocCnt</code>s where <code>Doc</code>
+   *          contains <code>k</code> <code>cnt</code> times.
    * @version 3.0
    */
   public Vector lookup(String k) {
@@ -230,7 +210,7 @@ public class WordTable {
   public String[] getWords() {
     return (String[]) table.keySet().toArray(new String[table.size()]);
   }
-  
+
   /**
    * A method to return the displayable content of the word table as string.
    * 
@@ -248,7 +228,7 @@ public class WordTable {
         sb.append(w).append("\n");
       } else {
         // key
-        sbk.append(w).append("->").append(dv.toString()).append("\n");
+        sbk.append(w).append("->[").append(dv.size()).append("]").append(dv.toString()).append("\n");
       }
     }
 

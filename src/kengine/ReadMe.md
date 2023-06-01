@@ -1,4 +1,4 @@
-Version 3.0 README:
+Version 4.0 README:
 ===================
 
-Scope: design iteration 2, part 2
+Scope: design iteration 2, part 3

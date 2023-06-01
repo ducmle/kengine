@@ -1,8 +1,12 @@
 # KEngine
-## Version: 2.0
+## Version: 3.0
 
-Implement version 2.0 of the keyword search engine.
+Implement version 3.0 of the keyword search engine.
 
-TODO: add details
+- Scope: design iteration 2, part 2
+- Components:
+  - WordTable: completed
+  - Doc: completed
+  - DocCnt: partial (not yet implement Comparable interface)
 
 

@@ -1,8 +1,4 @@
-Version 2.0 README:
+Version 3.0 README:
 ===================
 
-Scope: design iteration 2, part 1
-
-Components:
-- TitleTable: completed
-- Helpers: completed
+Scope: design iteration 2, part 2
